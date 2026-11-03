@@ -1,0 +1,55 @@
+
+# Private environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Frontend dependencies and build files
+node_modules/
+dist/
+
+# Local editor and operating system files
+.vscode/
+.DS_Store
+Thumbs.db
+
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Frontend dependencies and build output
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Local editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
