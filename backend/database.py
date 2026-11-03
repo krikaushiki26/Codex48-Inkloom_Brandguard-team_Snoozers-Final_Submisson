@@ -19,7 +19,11 @@ settings = Settings()
 
 
 engine = create_engine(
-    settings.database_url,
+    settings.database_url.replace(
+        "postgresql://",
+        "postgresql+psycopg2://",
+        1
+    ),
     pool_pre_ping=True,
     pool_size=5,
     max_overflow=10,
