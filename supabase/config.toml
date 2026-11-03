@@ -1,0 +1,17 @@
+project_id = "inkloom-brandguard"
+
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+
+[db]
+port = 54322
+major_version = 17
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://127.0.0.1:5173", "http://localhost:5173"]
+
+[functions.api]
+verify_jwt = false

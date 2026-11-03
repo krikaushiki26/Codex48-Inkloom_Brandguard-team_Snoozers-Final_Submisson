@@ -17,7 +17,7 @@ Inkloom BrandGuard is a React web application that helps users check written con
 
 - Node.js (a supported LTS version)
 - npm
-- Access to the Inkloom BrandGuard backend API
+- A Supabase project configured with this repository's migration
 
 ## Setup Instructions
 
@@ -29,19 +29,25 @@ Open a terminal in the frontend folder and run:
 npm install
 ```
 
-### 2. Configure the Backend URL
+### 2. Configure Supabase
 
 Create a `.env` file in the frontend folder using `.env.example` as a template.
 
-Set the backend URL:
+Set the Supabase Project URL and publishable anon key:
 
 ```text
-VITE_API_URL=http://127.0.0.1:8000
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_ANON_KEY=your-project-anon-key
+VITE_API_URL=https://YOUR_PROJECT_REF.supabase.co/functions/v1/api
 ```
 
-Replace this address with the deployed backend URL when deploying the application.
+`VITE_API_URL` is optional and defaults to the `api` Edge Function URL derived
+from `VITE_SUPABASE_URL`.
 
-**Security:** Variables beginning with `VITE_` are exposed to frontend code. Never store database passwords or JWT secrets in frontend environment variables.
+**Security:** Variables beginning with `VITE_` are exposed to frontend code.
+The Project URL and anon key are designed to be public. Never store database
+passwords, service-role keys, or other secrets in frontend environment
+variables.
 
 ### 3. Start Development Mode
 
@@ -63,13 +69,18 @@ Vite generates the production files in the `dist` folder.
 
 Deploy the generated `dist` folder to a suitable static hosting provider.
 
-Configure `VITE_API_URL` before building the application for deployment.
+Configure all three `VITE_` variables before building the application for
+deployment.
 
-The deployed frontend must be able to communicate with the backend API, and the backend must allow the frontend's origin through its CORS configuration.
+The deployed frontend must be listed in Supabase Auth Redirect URLs and must
+match the Edge Function `FRONTEND_URL` secret. See
+[`../SUPABASE_DEPLOYMENT.md`](../SUPABASE_DEPLOYMENT.md) for the exact
+dashboard and CLI deployment steps.
 
 ## Application Features
 
 - User registration and login
+- Supabase Auth session persistence and refresh
 - Brand-rule library
 - Rule-based content checking
 - Human review queue
@@ -78,7 +89,8 @@ The deployed frontend must be able to communicate with the backend API, and the 
 
 ## Limitations
 
-The content checker uses predefined rules. It is not an AI-powered fact-checker, and the application does not automatically publish content.
+The content checker uses predefined rules. It is not an AI-powered
+fact-checker, and the application does not automatically publish content.
 
 ## Project Status
 
