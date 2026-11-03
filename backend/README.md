@@ -118,9 +118,9 @@ The documentation is available when the backend is running.
 
 ## Production Deployment
 
-The backend is prepared for deployment as a Docker container on an Oracle Cloud Always Free VM, with Neon PostgreSQL.
+The backend is prepared for deployment as a Docker container on an Oracle Cloud Always Free VM, with Supabase PostgreSQL.
 
-1. Create a Neon database and copy its pooled connection string into `DATABASE_URL`.
+1. Create a Supabase project and copy its pooled PostgreSQL connection string into `DATABASE_URL`.
 2. Set `JWT_SECRET` to a unique, long random value.
 3. Set `FRONTEND_URL` to the Vercel production URL.
 4. On the Oracle VM, build and run the container:
