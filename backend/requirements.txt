@@ -1,0 +1,13 @@
+
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+pydantic-settings
+pydantic[email]
+pwdlib[argon2]
+PyJWT
+openai
+python-dotenv
+
+google-genai

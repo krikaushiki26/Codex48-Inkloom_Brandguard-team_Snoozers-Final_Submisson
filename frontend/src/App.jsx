@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import "./App.css";
 import api from "./api.js";
@@ -10,7 +10,6 @@ import ReviewQueue from "./ReviewQueue.jsx";
 import History from "./History.jsx";
 import AdminPanel from "./AdminPanel.jsx";
 import Analytics from "./Analytics.jsx";
-import { getMyAccount, logOutUser } from "./auth.js";
 
 const pageTitles = {
   Checker: "Content Checker",
@@ -22,8 +21,33 @@ const pageTitles = {
 };
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState(() => {
+    try {
+      const token = sessionStorage.getItem("inkloom_token");
+      const savedUser = sessionStorage.getItem("inkloom_user");
+
+      if (!token || !savedUser) {
+        sessionStorage.removeItem("inkloom_user");
+        sessionStorage.removeItem("inkloom_token");
+        return null;
+      }
+
+      const parsedUser = JSON.parse(savedUser);
+
+      if (!parsedUser || !parsedUser.id || !parsedUser.role) {
+        sessionStorage.removeItem("inkloom_user");
+        sessionStorage.removeItem("inkloom_token");
+        return null;
+      }
+
+      return parsedUser;
+    } catch (error) {
+      console.error("Unable to restore login session:", error);
+      sessionStorage.removeItem("inkloom_user");
+      sessionStorage.removeItem("inkloom_token");
+      return null;
+    }
+  });
 
   const [content, setContent] = useState("");
   const [result, setResult] = useState(null);
@@ -32,30 +56,15 @@ function App() {
   const [activePage, setActivePage] = useState("Checker");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    let active = true;
+  function handleLogin(loginData) {
+    const loggedInUser = loginData?.user || loginData;
 
-    getMyAccount()
-      .then((account) => {
-        if (active) setUser(account);
-      })
-      .catch(() => {
-        if (active) setUser(null);
-      })
-      .finally(() => {
-        if (active) setInitializing(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  function handleLogin(loggedInUser) {
     if (!loggedInUser || !loggedInUser.id || !loggedInUser.role) {
       setError("Login information is incomplete. Please sign in again.");
       return;
     }
+
+    sessionStorage.setItem("inkloom_user", JSON.stringify(loggedInUser));
 
     setUser(loggedInUser);
     setActivePage("Checker");
@@ -65,12 +74,10 @@ function App() {
     setResult(null);
   }
 
-  async function logOut() {
-    try {
-      await logOutUser();
-    } catch (logoutError) {
-      console.error("Unable to sign out:", logoutError);
-    }
+  function logOut() {
+    sessionStorage.removeItem("inkloom_token");
+    sessionStorage.removeItem("inkloom_user");
+
     setUser(null);
     setContent("");
     setResult(null);
@@ -139,10 +146,6 @@ function App() {
     } finally {
       setSubmitting(false);
     }
-  }
-
-  if (initializing) {
-    return <main className="auth-page">Restoring your secure session…</main>;
   }
 
   if (!user) {

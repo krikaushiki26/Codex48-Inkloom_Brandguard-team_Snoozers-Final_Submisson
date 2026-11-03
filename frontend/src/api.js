@@ -1,24 +1,22 @@
+
 import axios from "axios";
-import supabase, { supabaseAnonKey, supabaseUrl } from "./supabase.js";
 
 const api = axios.create({
   baseURL:
-    import.meta.env.VITE_API_URL || `${supabaseUrl}/functions/v1/api`,
+    import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
   headers: {
     "Content-Type": "application/json",
-    apikey: supabaseAnonKey,
   },
 });
 
+// Attach the saved login token to every API request.
 api.interceptors.request.use(
-  async (config) => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+  (config) => {
+    const token = sessionStorage.getItem("inkloom_token");
 
-    if (session?.access_token) {
+    if (token) {
       config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${session.access_token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
@@ -26,11 +24,13 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Handle expired or invalid login sessions.
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
+  (error) => {
     if (error.response?.status === 401) {
-      await supabase.auth.signOut();
+      sessionStorage.removeItem("inkloom_token");
+      sessionStorage.removeItem("inkloom_user");
     }
 
     return Promise.reject(error);

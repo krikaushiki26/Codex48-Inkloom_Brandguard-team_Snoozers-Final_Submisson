@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { loginUser, registerUser } from "./auth.js";
+import api from "./api.js";
 import "./Auth.css";
 
 function Auth({ onLogin }) {
@@ -38,21 +38,61 @@ function Auth({ onLogin }) {
 
     try {
       if (isRegister) {
-        await registerUser(name, email, password);
+        await api.post("/auth/register", {
+          name: name.trim(),
+          email: email.trim(),
+          password,
+        });
 
         setSuccess(
-          "Registration successful. Confirm your email if required, then sign in."
+          "Registration successful! You can now log in."
         );
 
         setIsRegister(false);
         setPassword("");
       } else {
-        const account = await loginUser(email, password);
+        // LOGIN
+        const response = await api.post("/auth/login", {
+          email: email.trim(),
+          password,
+        });
+
+        const data = response.data;
+
+        // Get the authentication token from backend response
+        const token =
+          data.access_token ||
+          data.token ||
+          data.accessToken;
+
+        // Stop login if backend did not return a token
+        if (!token) {
+          throw new Error(
+            "Login successful, but no authentication token was received."
+          );
+        }
+
+        // IMPORTANT:
+        // Save token using the same name and storage
+        // that api.js uses for every API request.
+        sessionStorage.setItem(
+          "inkloom_token",
+          token
+        );
+
+        // Save logged-in user information
+        if (data.user) {
+          sessionStorage.setItem(
+            "inkloom_user",
+            JSON.stringify(data.user)
+          );
+        }
 
         setSuccess("Login successful!");
 
+        // Send login information to the main application
         if (typeof onLogin === "function") {
-          onLogin(account);
+          onLogin(data);
         }
       }
     } catch (err) {
