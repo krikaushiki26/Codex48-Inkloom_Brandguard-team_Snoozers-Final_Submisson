@@ -116,6 +116,27 @@ FastAPI provides interactive API documentation at:
 
 The documentation is available when the backend is running.
 
+## Production Deployment
+
+The backend is prepared for deployment as a Docker container on an Oracle Cloud Always Free VM, with Neon PostgreSQL.
+
+1. Create a Neon database and copy its pooled connection string into `DATABASE_URL`.
+2. Set `JWT_SECRET` to a unique, long random value.
+3. Set `FRONTEND_URL` to the Vercel production URL.
+4. On the Oracle VM, build and run the container:
+
+```bash
+docker build -t inkloom-brandguard-api ./backend
+docker run -d --restart unless-stopped --name inkloom-brandguard-api \
+  -p 8000:8000 \
+  -e DATABASE_URL \
+  -e JWT_SECRET \
+  -e FRONTEND_URL \
+  inkloom-brandguard-api
+```
+
+Terminate TLS at a reverse proxy such as Caddy or Nginx, forwarding HTTPS traffic to port 8000. Do not expose the database connection string or JWT secret in the frontend or repository.
+
 ## Main API Features
 
 ### Authentication
